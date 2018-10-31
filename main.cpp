@@ -21,10 +21,12 @@ References:
 /******************************************/
 /* GLOBAL VARIABLES */
 /******************************************/
-#define WINDOW_SCREEN_WIDTH 810 // orig. 1200
-#define WINDOW_SCREEN_HEIGHT 540 // orig. 456
-#define WINDOW_WIDTH 1010 // orig. 1200
-#define WINDOW_HEIGHT 740 // orig. 456
+#define WINDOW_SCREEN_WIDTH 810 // window screen height (controls aspect ratio of background) (orig. 1200) 
+#define WINDOW_SCREEN_HEIGHT 540 // window screen width (controls aspect ratio of background) (orig. 456)
+#define WINDOW_WIDTH 1110 // pop-up window size (orig. 1200)
+#define WINDOW_HEIGHT 840 // pop-up windowsize (orig. 456)
+
+bool mouseEnable = false; // controls whether the mouse functions are enabled or not.
 
 /*********************************/
 /* GLOBAL SPRITE INFO */
@@ -117,8 +119,11 @@ void WindowReshapeCallbackFunction(int w,int h)
 
 void MouseClickCallbackFunction(int button, int state, int x, int y)
 {
-	theGame->mouseClicked(button,state,x,y);
-	glutPostRedisplay();
+	if (mouseEnable)
+	{
+		theGame->mouseClicked(button,state,x,y);
+		glutPostRedisplay();
+	}
 }
 
 
@@ -128,8 +133,11 @@ void MouseClickCallbackFunction(int button, int state, int x, int y)
  */
 void MouseMotionCallbackFunction(int x, int y)
 {
-	theGame->mouseMoved(x,y);
-	glutPostRedisplay();
+	if (mouseEnable)
+	{
+		theGame->mouseMoved(x, y);
+		glutPostRedisplay();
+	}
 }
 
 /* function main()

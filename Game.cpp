@@ -40,11 +40,15 @@ void Game::initializeGame()
 {
 	/* this is a sprite without any animations, it is just an image */
 	spaceShip = new Sprite("images/Gyaraga_Galaga_Fighter_small.png"); // replaced ("images/redbird.png") with Gyaraga, the ship from Galaga. A white box is printed if there's nothing there.
+	// setting the width and height of the individual sprite
+	spaceShip->width = 40;
+	spaceShip->height = 42;
+
 	spaceShip->setNumberOfAnimations(1);
-	spaceShip->setSpriteFrameSize(51,54); // size of the sprite frame being used
+	spaceShip->setSpriteFrameSize(spaceShip->width, spaceShip->height); // size of the sprite frame being used
 	spaceShip->addSpriteAnimFrame(0,0,0);
 	spaceShip->setPosition(100,200);
-	spaceShip->setCenter(51/2, 54/2); // center of the sprite's origin for rotation
+	spaceShip->setCenter(spaceShip->width/2, spaceShip->height/2); // center of the sprite's origin for rotation
 	spaceShip->setLayerID(3); // on the third layer
 
 	/* add it to our list so we can draw it */
@@ -179,24 +183,80 @@ void Game::update()
 
 	// Taking in Movement with the arrow keys
 	float dt = updateTimer->getElapsedTimeSeconds(); // getting the amount of time
+	
+	float moveScalar(120.0f); // scalar for vector movement
+	float rotateScalar(250.0f); // the speed that the ship rotates at.
+	float decelerateScalar(0.5f); // the rate at which the ship decelerates
+	float maxSpeed(300.0f); // controls how fast the ship is allowed to go.
+	
+	
+	bool moveCheat = false; // allows the user to move left, right, and down if active. Under normal Asteroids rules, this is illegal.
+	bool speedLimit = true; // when false, there is no limit on how fast the ship can go.
+	// std::cout << spaceShip->theta << std::endl; // rotating left increases theta, and rotating right decreases theta. Theta is in degrees, and does not loop back around (i.e. it goes passed 360)
 	if (input.keyW) // Forward (Up Key)
 	{
-		spaceShip->velocity = spaceShip->velocity + Vector3(0, 50, 0) * dt;
-		// spaceShip->velocity += Vector3(0, 50, 0) * dt;
+		if (speedLimit == false || (speedLimit == true && spaceShip->velocity.y < maxSpeed))
+		{
+			// spaceShip->velocity += Vector3(0.0f, moveScalar, 0.0f) * dt;
+			spaceShip->velocity += Vector3(-sinf(spaceShip->theta / 180 * M_PI), cosf(spaceShip->theta / 180 * M_PI), 0.0f) * dt * rotateScalar; // incorporates rotations
+
+			/*
+			// spaceShip->velocity = spaceShip->velocity + Vector3(0, 50, 0) * dt;
+			if (spaceShip->theta == 0 || (spaceShip->theta > 0 && spaceShip->theta < 90))
+			{
+				std::cout << "test" << std::endl;
+				spaceShip->velocity += Vector3(moveScalar, moveScalar, 0.0f) * dt;
+			}
+			else
+			{
+				spaceShip->velocity += Vector3(0.0f, moveScalar, 0.0f) * dt;
+			}
+			*/
+			
+		}
 	}
 	else if (input.keyS) // Backwards (Down Key)
 	{
-		spaceShip->velocity = spaceShip->velocity + Vector3(0, -50, 0) * dt;
+		if(moveCheat)
+			spaceShip->velocity = spaceShip->velocity + Vector3(0.0f, -moveScalar, 0.0f) * dt;
 	}
-	else if (input.keyA) // Left (Leftward Key)
+	if (input.keyA) // Left (Leftward Key)
 	{
-		spaceShip->velocity = spaceShip->velocity + Vector3(-150, 0, 0) * dt;
+		spaceShip->theta += rotateScalar * dt; // original
+
+		// if(moveCheat)
+			// spaceShip->velocity += Vector3(-sinf(spaceShip->theta / 180 * M_PI), cosf(spaceShip->theta / 180 * M_PI), 0.0f) * dt * rotateScalar; // move and rotate
+			// spaceShip->velocity = spaceShip->velocity + Vector3(-moveScalar, 0, 0) * dt; // move without rotate
 	}
 	else if (input.keyD) // Right (Rightward Key);
 	{
-		spaceShip->velocity = spaceShip->velocity + Vector3(150, 0, 0) * dt;
-	}
+		spaceShip->theta -= rotateScalar * dt; // original
 
+		// if(moveCheat)
+			// spaceShip->velocity += Vector3(-sinf(spaceShip->theta / 180 * M_PI), cosf(spaceShip->theta / 180 * M_PI), 0.0f) * dt * rotateScalar; // move and rotate at the same time
+			// spaceShip->velocity = spaceShip->velocity + Vector3(moveScalar, 0, 0) * dt; // move without rotation
+	}
+	
+	// Has the ship slowly stop if no force is being applied
+	if (!input.keyW) // if the key isn't being held down, the vector decreases
+	{
+		/*
+		if (spaceShip->velocity.x > 0 && spaceShip->velocity.y > 0)
+		{
+			spaceShip->velocity -= Vector3(spaceShip->velocity.x * decelerateScalar, spaceShip->velocity.y * decelerateScalar, 0);
+			// spaceShip->velocity -= Vector3(0, decelerateScalar, 0);
+		}
+		if (spaceShip->velocity.x < 1.0)
+		{
+			spaceShip->velocity.x = 0.0f;
+		}
+		if (spaceShip->velocity.y < 1.0) // stops the velocity from going into the negatives
+		{
+			spaceShip->velocity.y = 0.0f;
+		}
+		*/
+	}
+	
 	/* you should probably update all of the sprites in a list just like the drawing */
 	/* maybe two lists, one for physics updates and another for sprite animation frame update */
 	spaceShip->update(updateTimer->getElapsedTimeSeconds());

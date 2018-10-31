@@ -122,6 +122,8 @@ public:
 	int numberOfAnimations;
 	int currentAnimation;
 
+	unsigned int width, height; // the width and height of the individual sprite
+
 	/* position/center/orientation */
 	/* these should be VECTORS! */
 	float positionX,positionY;

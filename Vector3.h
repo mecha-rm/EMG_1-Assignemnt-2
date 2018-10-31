@@ -2,15 +2,25 @@
 class Vector3
 {
 public:
-	// Vector3(float, float, float);
-
-	// Vector3 operator*(const float) const;
-	// Vector3 operator+(const Vector3) const;
-	// Vector3 operator+=(const Vector3) const;
-
 	Vector3();
-	Vector3(float X,float Y, float Z):x(X),y(Y),z(Z) {}
+	Vector3(float, float, float);
+	// Vector3(float X,float Y, float Z):x(X),y(Y),z(Z) {}
 	~Vector3();
+
+	void set(float, float, float);
+
+	Vector3 operator*(const float) const;
+	Vector3 operator+(const Vector3) const;
+	Vector3 operator/(const float) const;
+	Vector3 operator-(const Vector3) const;
+
+	Vector3 operator*=(const float);
+	Vector3 operator+=(const Vector3); // const needed to be removed for it to work.
+	Vector3 operator/=(const float);
+	Vector3 operator-=(const Vector3);
+
+	// Original Functions
+	/*
 	void set(float X, float Y, float Z) { x = X; y = Y;z = Z; }
 
 	// operator overloading
@@ -49,6 +59,7 @@ public:
 
 		// return result;
 	}
+	*/
 
 	// its a 3D vector, here is the data!
 	float x, y, z;

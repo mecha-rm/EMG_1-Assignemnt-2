@@ -29,9 +29,10 @@ void Sprite::update(float dt)
 {
 	// physics update goes here!!!!
 	
+
 	// Getting the current acceleration. Acceleration is equal to the current amount of force being applied.
-	acceleration.x = force.x; // maybe don't divide force.x by mass ?
-	acceleration.y = force.y; // maybe don't divide force.y by mass
+	acceleration.x = force.x/mass;
+	acceleration.y = force.y/mass;
 
 	// Getting the current velocity. Velocity = Previous Velocity + Acceleration * Delta Time (Time Passed)
 	velocity.x += acceleration.x * dt;
@@ -41,14 +42,35 @@ void Sprite::update(float dt)
 	position.x += velocity.x * dt;
 	position.y += velocity.y * dt;
 
-	// this should be collisions here!  
-	// but for this example, just checking if we are at a particular pixel location on Y is fine....
-	if (position.y <= 100)
+	// this should be collisions here!
+
+
+	// Screen Wrapping - the width and height cannot be negative, so they must be changed from 'unsigned' to 'signed' first
+	// x-axis
+	if (position.x <= -1 * ((signed)width)) // going through the left side of the screen (negative sprite's width)
 	{
-		position.y = 100;
-		velocity.set(0, 0, 0);
-		acceleration.set(0, 0, 0);
-		force.set(0, 0, 0);
+		position.x = 810;
+	}
+	else if (position.x >= 810) // going through the right side of the screen
+	{
+		position.x = -1 * ((signed)width);
+	}
+
+	// y-axis
+	// but for this example, just checking if we are at a particular pixel location on Y is fine....
+	if (position.y <= -1 * ((signed)height)) // bottom of screen; set to negative sprite height; orig. position.y <= 0. If it goes off the screen, it appears on the other side
+	{
+		position.y = 540;
+		// velocity.set(0, 0, 0);
+		// acceleration.set(0, 0, 0);
+		// force.set(0, 0, 0);
+	}
+	else if (position.y >= 540) // top of screen; set to window screen height; if the ship goes through the top of the screen, it reappears at the bottom of the screen
+	{
+		position.y = -1 * ((signed)height);
+		// velocity.set(0, 0, 0);
+		// acceleration.set(0, 0, 0);
+		// force.set(0, 0, 0);
 	}
 }
 

@@ -39,8 +39,6 @@ enum {
 // you could add keyboard info in here too if you need to know if a key is currently pressed down
 typedef struct _InputInfo
 {
-	bool keyW = false, keyS = false, keyA = false, keyD = false; // bools for the up, down, left, and right movement keys. These are used to check if the buttons have (and still are) being pressed down.
-
 	bool mouseDown; // is the mouse down?
 	int button; // which mouse button
 	float clickX,clickY; // where the mouse was clicked
@@ -141,7 +139,8 @@ public:
 	GameStateInfo stateInfo;
 
 	// here is the sprite to draw to the screen
-	Sprite *spaceShip; // changed from *testSprite
+	Sprite *testSprite;
+	Sprite * testSprite2; // extra sprite
 
 	// the background scroller
 	HorizontalScrollingBackground *bg;

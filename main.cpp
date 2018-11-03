@@ -1,11 +1,3 @@
-/*
-Name: Roderick "R.J." Montague
-Student Number: 100701758
-Date: 10/27/2018
-References:
-*/
-// Essential Mathematics for Games I - Assignment 2
-
 /******************************************/
 /* A Very Basic Sprite Lib starter Code
  * - this contains simple functionality to 
@@ -21,12 +13,10 @@ References:
 /******************************************/
 /* GLOBAL VARIABLES */
 /******************************************/
-#define WINDOW_SCREEN_WIDTH 810 // window screen height (controls aspect ratio of background) (orig. 1200) 
-#define WINDOW_SCREEN_HEIGHT 540 // window screen width (controls aspect ratio of background) (orig. 456)
-#define WINDOW_WIDTH 1110 // pop-up window size (orig. 1200)
-#define WINDOW_HEIGHT 840 // pop-up windowsize (orig. 456)
-
-bool mouseEnable = false; // controls whether the mouse functions are enabled or not.
+#define WINDOW_SCREEN_WIDTH 1200
+#define WINDOW_SCREEN_HEIGHT 456
+#define WINDOW_WIDTH 1200
+#define WINDOW_HEIGHT 456
 
 /*********************************/
 /* GLOBAL SPRITE INFO */
@@ -51,7 +41,7 @@ void DisplayCallbackFunction(void)
  * Description:
  *   - this handles keyboard input when a button is pressed
  */
-void KeyboardCallbackFunction(unsigned char key, int x, int y) // gets the key that was pressed down, and the keycode of said key.
+void KeyboardCallbackFunction(unsigned char key, int x, int y)
 {
 	std::cout << "Keycode:"<<(int)key<<std::endl;
 	theGame->keyboardDown(key,x,y);
@@ -119,11 +109,8 @@ void WindowReshapeCallbackFunction(int w,int h)
 
 void MouseClickCallbackFunction(int button, int state, int x, int y)
 {
-	if (mouseEnable)
-	{
-		theGame->mouseClicked(button,state,x,y);
-		glutPostRedisplay();
-	}
+	theGame->mouseClicked(button,state,x,y);
+	glutPostRedisplay();
 }
 
 
@@ -133,11 +120,8 @@ void MouseClickCallbackFunction(int button, int state, int x, int y)
  */
 void MouseMotionCallbackFunction(int x, int y)
 {
-	if (mouseEnable)
-	{
-		theGame->mouseMoved(x, y);
-		glutPostRedisplay();
-	}
+	theGame->mouseMoved(x,y);
+	glutPostRedisplay();
 }
 
 /* function main()

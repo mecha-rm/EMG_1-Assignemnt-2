@@ -28,52 +28,75 @@ void Sprite::addForce(Vector3 f)
 void Sprite::update(float dt)
 {
 	// physics update goes here!!!!
+	// p_i = p_(i + 1_ + v * dt
+	// v_i = v_(i-1_ + g*dt
+
+	// compute our acceleration
+	// F = m*a
+	// a = (1.0/m) * force
 	
 
-	// Getting the current acceleration. Acceleration is equal to the current amount of force being applied.
-	acceleration.x = force.x/mass;
-	acceleration.y = force.y/mass;
+	// testing purposes
+	// computer direction to a particular point in the scene
+	// point is (500, 300);
+	
+	// Comment out 'Vector3 p(500, 300, 0) to 'force.y = dir.y*(value).f;' to launch bird with mouse. You must also comment acceleration and velocity.
+	// The code from Vector3p(x, y, z) to force.y(dir.y) is for drawing the bird towards a specific point.
+	Vector3 p(500, 300, 0);
+	Vector3 dir(0, 0, 0);
+	dir.x = p.x - position.x;
+	dir.y = p.y - position.y;
+	float length = sqrt(dir.x*dir.x + dir.y*dir.y); // pythagorean thereom
+	dir.x *= (1.f / length);
+	dir.y *= (1.f / length);
 
-	// Getting the current velocity. Velocity = Previous Velocity + Acceleration * Delta Time (Time Passed)
-	velocity.x += acceleration.x * dt;
-	velocity.y += acceleration.y * dt;
+	if(position.x > 200)
+		this->addForce(Vector3(0, 50, 0));
 
-	// Getting the current position. Position = Previous Position + Velocity * Delta Time (Time Passed)
-	position.x += velocity.x * dt;
-	position.y += velocity.y * dt;
+	force.x = dir.x*15.f;
+	force.y = dir.y*15.f;
+	
 
-	// this should be collisions here!
+	// use "find all references" to find all references that use the word "force"
+	acceleration.x = force.x;
+	acceleration.y = force.y;
 
+	// acceleration.set(0, -10, 0); // acceleration (gravity) (testing purposes)
+	velocity.x = velocity.x + acceleration.x*dt;
+	velocity.y = velocity.y + acceleration.y*dt;
 
-	// Screen Wrapping - the width and height cannot be negative, so they must be changed from 'unsigned' to 'signed' first
-	// x-axis
-	if (position.x <= -1 * ((signed)width)) // going through the left side of the screen (negative sprite's width)
-	{
-		position.x = 810;
-	}
-	else if (position.x >= 810) // going through the right side of the screen
-	{
-		position.x = -1 * ((signed)width);
-	}
+	// velocity.set(100, 0, 0); // Our physics (movement) (testing purposes)
+	position.x = position.x + velocity.x * dt;
+	position.y = position.y + velocity.y * dt;
 
-	// y-axis
+	// this should be collisions here!  
 	// but for this example, just checking if we are at a particular pixel location on Y is fine....
-	if (position.y <= -1 * ((signed)height)) // bottom of screen; set to negative sprite height; orig. position.y <= 0. If it goes off the screen, it appears on the other side
+	if (position.y <= 100)
 	{
-		position.y = 540;
-		// velocity.set(0, 0, 0);
-		// acceleration.set(0, 0, 0);
-		// force.set(0, 0, 0);
+		position.y = 100;
+		velocity.set(0, 0, 0);
+		acceleration.set(0, 0, 0);
+		force.set(0, 0, 0);
 	}
-	else if (position.y >= 540) // top of screen; set to window screen height; if the ship goes through the top of the screen, it reappears at the bottom of the screen
-	{
-		position.y = -1 * ((signed)height);
-		// velocity.set(0, 0, 0);
-		// acceleration.set(0, 0, 0);
-		// force.set(0, 0, 0);
-	}
+	
+	setCenter();
+
+	// force.set(0, 0, 0); // stop applying force if the button is not being pressed.
+
 }
 
+bool Sprite::isCollidingWith(Sprite *s)
+{
+	float dist;
+	float sumRadii;
+
+	sumRadii = radius + s->radius;
+
+	dist = sqrt((center.x - s->center.x) * (center.x - s->center.x) + (center.y - s->center.y) * (center.y - s->center.y) );
+
+	if (dist < sumRadii) return true;
+	return false;
+}
 
 Sprite::~Sprite(void)
 {
@@ -86,7 +109,7 @@ void Sprite::loadSpriteSheet(const char *filename)
 	sheet.height = ilGetInteger(IL_IMAGE_HEIGHT);
 }
 
-void Sprite::setSpriteFrameSize(int width, int height) // the size of the sprite frame in the image file (i.e. how much of the image file is used to make the sprite).
+void Sprite::setSpriteFrameSize(int width, int height)
 {
 	sz.width = width;
 	sz.height = height;
@@ -94,7 +117,7 @@ void Sprite::setSpriteFrameSize(int width, int height) // the size of the sprite
 	sz.normalizedHeight = (float)height/(float)sheet.height;
 }
 
-void Sprite::setNumberOfAnimations(int num) // the number of sprite animation frames
+void Sprite::setNumberOfAnimations(int num)
 {
 	numberOfAnimations = num;
 	animations.reserve(num);

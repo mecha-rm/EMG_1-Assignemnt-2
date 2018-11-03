@@ -1,8 +1,8 @@
 #include "Game.h"
 #include "drawPrimitives.h"
 
-/* this is called by std::sort to sort the list based on layerID 
- *  for drawing in the proper order 
+/* this is called by std::sort to sort the list based on layerID
+ *  for drawing in the proper order
  */
 bool spriteSortingFunction(Sprite *s1, Sprite *s2)
 {
@@ -30,7 +30,7 @@ Game::~Game(void)
 	/* deallocate memory and clean up here. if needed */
 }
 
-/* 
+/*
  * initializeGame()
  * - this function is called in the constructor to initialize everything related
  *   to the game, i..e loading sprites etc.
@@ -39,25 +39,47 @@ Game::~Game(void)
 void Game::initializeGame()
 {
 	/* this is a sprite without any animations, it is just an image */
-	spaceShip = new Sprite("images/Gyaraga_Galaga_Fighter_small.png"); // replaced ("images/redbird.png") with Gyaraga, the ship from Galaga. A white box is printed if there's nothing there.
-	// setting the width and height of the individual sprite
-	spaceShip->width = 40;
-	spaceShip->height = 42;
-
-	spaceShip->setNumberOfAnimations(1);
-	spaceShip->setSpriteFrameSize(spaceShip->width, spaceShip->height); // size of the sprite frame being used
-	spaceShip->addSpriteAnimFrame(0,0,0);
-	spaceShip->setPosition(100,200);
-	spaceShip->setCenter(spaceShip->width/2, spaceShip->height/2); // center of the sprite's origin for rotation
-	spaceShip->setLayerID(3); // on the third layer
+	testSprite = new Sprite("images/redbird.png");
+	testSprite->setNumberOfAnimations(1);
+	testSprite->setSpriteFrameSize(148, 125);
+	testSprite->addSpriteAnimFrame(0, 0, 0);
+	testSprite->setPosition(100, 200);
+	testSprite->setCenter(148 / 2, 125 / 2); // center of the sprites origin for rotation
+	testSprite->setCenter();
+	testSprite->setRadius(125);
+	testSprite->setLayerID(3);
 
 	/* add it to our list so we can draw it */
-	this->addSpriteToDrawList(spaceShip);
+	this->addSpriteToDrawList(testSprite);
+
+	//// SPRITE 2 > DOES NOT MOVE
+	/* this is a sprite without any animations, it is just an image */
+	testSprite2 = new Sprite("images/redbird.png");
+	testSprite2->setNumberOfAnimations(1);
+	testSprite2->setSpriteFrameSize(148, 125);
+	testSprite2->addSpriteAnimFrame(0, 0, 0);
+	testSprite2->setPosition(100, 200);
+	testSprite2->setCenter(148 / 2, 125 / 2); // center of the sprites origin for rotation
+	testSprite2->setCenter();
+	testSprite2->setRadius(125);
+	testSprite2->setLayerID(3);
+
+	/* add it to our list so we can draw it */
+	this->addSpriteToDrawList(testSprite2);
+
+	if (testSprite->isCollidingWith(testSprite2)) // should be in Game::update() in Game.h
+	{
+		std::cout << "Collision" << std::endl;
+	}
+
+	// testSprite->update(updateTimer->getElapsedTimeSeconds());
+	// testSprite2->update(updateTimer->getElapsedTimeSeconds());
 
 	///* load the background */
-	bg = new HorizontalScrollingBackground("images/space_shutterstock.jpg",stateInfo.windowWidth,stateInfo.windowHeight); // changed from "images/BG.png" to "images/space_shutterstock.jpg"
+	bg = new HorizontalScrollingBackground("images/BG.png", stateInfo.windowWidth, stateInfo.windowHeight);
 	this->addSpriteToDrawList(bg);
 	bg->setLayerID(0);
+
 }
 
 /* draw()
@@ -98,7 +120,6 @@ void Game::PreDraw()
 
 	/* sort the sprites by layerID so we draw them in the right order */
 	std::sort(spriteListToDraw.begin(), spriteListToDraw.end(), spriteSortingFunction);
-
 }
 
 /* 
@@ -112,6 +133,8 @@ void Game::DrawGame()
 
 	glDisable(GL_TEXTURE_2D);
 	drawTestPrimitives();  
+	drawCircle(10, testSprite->radius, testSprite->center.x, testSprite->center.y); // you need to update this in your physics as well
+	drawCircle(10, testSprite2->radius, testSprite2->center.x, testSprite2->center.y);
 
 	/* this makes it actually show up on the screen */
 	glutSwapBuffers();
@@ -178,88 +201,18 @@ void Game::update()
 	updateTimer->tick();
 	
 	Vector3 gravity;
-	gravity.set(0, 0, 0); // removed gravity.set(0, -100, 0); There's no gravity in space.
-	spaceShip->addForce(gravity);
+	gravity.set(0, -100, 0);
+	testSprite->addForce(gravity);
 
-	// Taking in Movement with the arrow keys
-	float dt = updateTimer->getElapsedTimeSeconds(); // getting the amount of time
-	
-	float moveScalar(120.0f); // scalar for vector movement
-	float rotateScalar(250.0f); // the speed that the ship rotates at.
-	float decelerateScalar(0.5f); // the rate at which the ship decelerates
-	float maxSpeed(300.0f); // controls how fast the ship is allowed to go.
-	
-	
-	bool moveCheat = false; // allows the user to move left, right, and down if active. Under normal Asteroids rules, this is illegal.
-	bool speedLimit = true; // when false, there is no limit on how fast the ship can go.
-	// std::cout << spaceShip->theta << std::endl; // rotating left increases theta, and rotating right decreases theta. Theta is in degrees, and does not loop back around (i.e. it goes passed 360)
-	if (input.keyW) // Forward (Up Key)
+	if (testSprite->isCollidingWith(testSprite2)) // updating both sprites
 	{
-		if (speedLimit == false || (speedLimit == true && spaceShip->velocity.y < maxSpeed))
-		{
-			// spaceShip->velocity += Vector3(0.0f, moveScalar, 0.0f) * dt;
-			spaceShip->velocity += Vector3(-sinf(spaceShip->theta / 180 * M_PI), cosf(spaceShip->theta / 180 * M_PI), 0.0f) * dt * rotateScalar; // incorporates rotations
+		std::cout << "Collision" << std::endl;
+	}
 
-			/*
-			// spaceShip->velocity = spaceShip->velocity + Vector3(0, 50, 0) * dt;
-			if (spaceShip->theta == 0 || (spaceShip->theta > 0 && spaceShip->theta < 90))
-			{
-				std::cout << "test" << std::endl;
-				spaceShip->velocity += Vector3(moveScalar, moveScalar, 0.0f) * dt;
-			}
-			else
-			{
-				spaceShip->velocity += Vector3(0.0f, moveScalar, 0.0f) * dt;
-			}
-			*/
-			
-		}
-	}
-	else if (input.keyS) // Backwards (Down Key)
-	{
-		if(moveCheat)
-			spaceShip->velocity = spaceShip->velocity + Vector3(0.0f, -moveScalar, 0.0f) * dt;
-	}
-	if (input.keyA) // Left (Leftward Key)
-	{
-		spaceShip->theta += rotateScalar * dt; // original
-
-		// if(moveCheat)
-			// spaceShip->velocity += Vector3(-sinf(spaceShip->theta / 180 * M_PI), cosf(spaceShip->theta / 180 * M_PI), 0.0f) * dt * rotateScalar; // move and rotate
-			// spaceShip->velocity = spaceShip->velocity + Vector3(-moveScalar, 0, 0) * dt; // move without rotate
-	}
-	else if (input.keyD) // Right (Rightward Key);
-	{
-		spaceShip->theta -= rotateScalar * dt; // original
-
-		// if(moveCheat)
-			// spaceShip->velocity += Vector3(-sinf(spaceShip->theta / 180 * M_PI), cosf(spaceShip->theta / 180 * M_PI), 0.0f) * dt * rotateScalar; // move and rotate at the same time
-			// spaceShip->velocity = spaceShip->velocity + Vector3(moveScalar, 0, 0) * dt; // move without rotation
-	}
-	
-	// Has the ship slowly stop if no force is being applied
-	if (!input.keyW) // if the key isn't being held down, the vector decreases
-	{
-		/*
-		if (spaceShip->velocity.x > 0 && spaceShip->velocity.y > 0)
-		{
-			spaceShip->velocity -= Vector3(spaceShip->velocity.x * decelerateScalar, spaceShip->velocity.y * decelerateScalar, 0);
-			// spaceShip->velocity -= Vector3(0, decelerateScalar, 0);
-		}
-		if (spaceShip->velocity.x < 1.0)
-		{
-			spaceShip->velocity.x = 0.0f;
-		}
-		if (spaceShip->velocity.y < 1.0) // stops the velocity from going into the negatives
-		{
-			spaceShip->velocity.y = 0.0f;
-		}
-		*/
-	}
-	
 	/* you should probably update all of the sprites in a list just like the drawing */
 	/* maybe two lists, one for physics updates and another for sprite animation frame update */
-	spaceShip->update(updateTimer->getElapsedTimeSeconds());
+	testSprite->update(updateTimer->getElapsedTimeSeconds());
+	// testSprite2->update(updateTimer->getElapsedTimeSeconds()); // makes the bird disappear for some reason
 }
 
 /* 
@@ -286,37 +239,33 @@ void Game::addSpriteToDrawList(Sprite *s)
 */
 void Game::keyboardDown(unsigned char key, int mouseX, int mouseY)
 {
-	std::cout << key << std::endl;
+	float f(100.0f);
 	switch(key)
 	{
-		case 'w': // up key (forward movement)
-		case '8': // alternate up key
-			input.keyW = true;
-			break;
-		case 's': // down key (backwards movement)
-		case '2': // alternate down key
-			input.keyS = true;
-			break;
-		case 'a': // left key (leftward movement)
-		case '4': // alternate left key
-			input.keyA = true;
-			break;
-		case 'd': // right key (rightward movement)
-		case '6': // alternate right key
-			input.keyD = true;
-			break;
-		case 'r':  // reset position, velocity, and force ; The r key should probably be disabled in the final game.
-			spaceShip->position.set(100, 100, 0);
-			spaceShip->velocity.set(0, 0, 0);
-			spaceShip->acceleration.set(0, 0, 0);
-			spaceShip->force.set(0, 0, 0);
-			break;
-		case 32: // the space bar
-			break;
-		case 27: // the escape key; used for quitting the game
-		case 'q': // the 'q' key; also used for quitting the game
-			exit(1);
-			break;
+	case 'w':
+		testSprite->addForce(Vector3(0, f, 0));
+		break;
+	case 's':
+		testSprite->addForce(Vector3(0, -f, 0));
+		break;
+	case 'a':
+		testSprite->addForce(Vector3(-f, 0, 0));
+		break;
+	case 'd':
+		testSprite->addForce(Vector3(f, 0, 0));
+		break;
+	case 'r':  // reset position, velocity, and force
+		testSprite->position.set(100, 100, 0);
+		testSprite->velocity.set(0, 0, 0);
+		testSprite->acceleration.set(0, 0, 0);
+		testSprite->force.set(0, 0, 0);
+		break;
+	case 32: // the space bar
+		break;
+	case 27: // the escape key
+	case 'q': // the 'q' key
+		exit(1);
+		break;
 	}
 }
 /* keyboardUp()
@@ -328,22 +277,6 @@ void Game::keyboardUp(unsigned char key, int mouseX, int mouseY)
 {
 	switch(key)
 	{
-	case 'w': // up key (forward movement)
-	case '8': // alternate up key
-		input.keyW = false;
-		break;
-	case 's': // down key (backwards movement)
-	case '2': // alternate down key
-		input.keyS = false;
-		break;
-	case 'a': // left key (leftward movement)
-	case '4': // alternate left key
-		input.keyA = false;
-		break;
-	case 'd': // right key (rightward movement)
-	case '6': // alternate right key
-		input.keyD = false;
-		break;
 	case 32: // the space bar
 		break;
 	case 27: // the escape key
@@ -385,7 +318,7 @@ void Game::mouseClicked(int button, int state, int x, int y)
 		Vector3 f;
 		f.set(input.currentX - input.clickX, input.currentY - input.clickY, 0);
 		f = f * 20.f;
-		spaceShip->addForce(f);
+		testSprite->addForce(f);
 		
 		input.mouseDown = false;
 	}

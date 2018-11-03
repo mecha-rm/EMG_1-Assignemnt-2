@@ -122,16 +122,29 @@ public:
 	int numberOfAnimations;
 	int currentAnimation;
 
-	unsigned int width, height; // the width and height of the individual sprite
-
 	/* position/center/orientation */
 	/* these should be VECTORS! */
 	float positionX,positionY;
+
+	bool isCollidingWith(Sprite *);
+
+	void setRadius(float value)
+	{
+		radius = value;
+	}
+
+	void setCenter()
+	{
+		center.x = position.x + sz.width / 2; // sets the centre of the sprite (x)
+		center.y = position.y + sz.height / 2; // sets the cener of the sprite (y)
+	}
 
 
 	Vector3 position;  // use this!  Its a vector!!
 	float centerX,centerY;
 	float theta;
+	float radius; // this is the radius of the sprite collision circle
+	Vector3 center; // this is the center of the sprite
 
 
 	// physics;
